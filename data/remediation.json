@@ -1,1 +1,103 @@
-[]
+{
+  "version": "0.1.0",
+  "categories": {
+    "log_analysis": {
+      "title": "Log Analysis",
+      "bullets": [
+        "Do 10-minute daily log drills, focus on pulling out: source, destination, action, outcome, timeframe.",
+        "Practice scoping: identify whether this is one host or many, then decide what data proves it.",
+        "Work DNS + proxy + auth logs together, most CySA+ scenarios are correlation problems."
+      ]
+    },
+    "incident_response": {
+      "title": "Incident Response Sequencing",
+      "bullets": [
+        "Run 'first, next, then' drills: containment vs eradication vs recovery, do not skip steps.",
+        "Practice evidence preservation decisions: what to collect before you isolate or kill a process.",
+        "Write a one-paragraph IR plan for 5 scenarios, force yourself to justify the first action."
+      ]
+    },
+    "vuln_prioritization": {
+      "title": "Vulnerability Prioritization",
+      "bullets": [
+        "Triage vulnerabilities using exploitability + asset criticality + exposure, not CVSS alone.",
+        "Practice choosing between patch, mitigate, monitor, or accept risk based on constraints.",
+        "Build a simple rubric: internet-facing + known exploit + critical asset = urgent."
+      ]
+    },
+    "detection_reasoning": {
+      "title": "Detection Reasoning",
+      "bullets": [
+        "For each alert, write the hypothesis and the single best piece of evidence to confirm or deny it.",
+        "Practice distinguishing true positive vs false positive by identifying what would make the alert benign.",
+        "Focus on 'next best data source' questions: EDR process tree, DNS logs, proxy logs, auth logs, netflow."
+      ]
+    }
+  },
+  "tags": {
+    "assumption_jump": {
+      "title": "Jumps to conclusions",
+      "meaning": "You selected high-confidence actions without first validating the indicator or scoping impact.",
+      "bullets": [
+        "Before acting, name the confirming evidence you need, then choose the step that gets it.",
+        "When multiple answers feel plausible, pick the one that reduces uncertainty fastest."
+      ]
+    },
+    "sequence_error": {
+      "title": "IR sequencing errors",
+      "meaning": "You mixed up containment, eradication, and recovery steps or skipped evidence handling.",
+      "bullets": [
+        "Force a three-step answer: collect evidence, contain safely, then eradicate and recover.",
+        "If an option is destructive, check whether you have enough evidence and scope first."
+      ]
+    },
+    "missed_context": {
+      "title": "Missed key context",
+      "meaning": "You overlooked details like timeframe, user, host role, or direction of traffic.",
+      "bullets": [
+        "Underline the timeframe, host, user, and destination before selecting an answer.",
+        "Restate the scenario in one sentence, then answer that sentence."
+      ]
+    },
+    "wrong_priority": {
+      "title": "Poor prioritization",
+      "meaning": "You chose actions that are technically correct but not the best use of time under constraints.",
+      "bullets": [
+        "Prioritize actions that reduce risk quickly: stop spread, protect critical assets, preserve evidence.",
+        "When two options are both valid, choose the one that prevents damage or confirms scope sooner."
+      ]
+    },
+    "confuses_fp_tp": {
+      "title": "False positive vs true positive confusion",
+      "meaning": "You treated weak or ambiguous indicators as confirmed malicious activity, or dismissed strong indicators as noise.",
+      "bullets": [
+        "Ask: what benign explanation fits this evidence, and what evidence would rule it out?",
+        "Look for corroboration across sources: one alert is a clue, two sources is a case."
+      ]
+    },
+    "tool_output_misread": {
+      "title": "Misread tool or log output",
+      "meaning": "You interpreted output fields incorrectly or drew conclusions not supported by the data.",
+      "bullets": [
+        "Slow down and identify what the fields actually represent, then interpret only what is shown.",
+        "Practice common fields: status codes, process ancestry, DNS record types, auth failure reasons."
+      ]
+    },
+    "scope_blindness": {
+      "title": "Scope blindness",
+      "meaning": "You did not determine whether the activity affects one system, a subset, or the environment.",
+      "bullets": [
+        "Default question: is this isolated or widespread, and what data answers that fastest?",
+        "Practice scoping with: time window, peer hosts, same indicator, same user, same subnet."
+      ]
+    },
+    "evidence_gap": {
+      "title": "Insufficient evidence thinking",
+      "meaning": "You chose an action without collecting the minimum evidence needed to support it.",
+      "bullets": [
+        "Name the minimum evidence set for the scenario: logs, EDR telemetry, network flow, auth events.",
+        "Prefer actions that preserve and collect before actions that destroy or alter state."
+      ]
+    }
+  }
+}
