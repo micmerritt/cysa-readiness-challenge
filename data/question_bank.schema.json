@@ -1,1 +1,71 @@
-
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/cysa-readiness-question-bank.schema.json",
+  "title": "CySA+ Readiness Challenge Question Bank",
+  "type": "array",
+  "items": { "$ref": "#/$defs/question" },
+  "$defs": {
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "prompt",
+        "choices",
+        "answerIndex",
+        "rationale"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 6,
+          "pattern": "^[a-z0-9]+-[a-z0-9]+-[0-9]{3,}$",
+          "description": "Unique ID, e.g., cysa-log-001"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "log_analysis",
+            "incident_response",
+            "vuln_prioritization",
+            "detection_reasoning"
+          ]
+        },
+        "domain": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4,
+          "description": "Optional CySA+ domain mapping"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 0,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "description": "0–2 remediation tags"
+        },
+        "difficulty": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Optional difficulty (1 easy – 5 hard)"
+        },
+        "prompt": { "type": "string", "minLength": 20 },
+        "choices": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "answerIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "rationale": { "type": "string", "minLength": 10 }
+      }
+    }
+  }
+}
