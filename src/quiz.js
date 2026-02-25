@@ -1,4 +1,4 @@
-const ATTEMPT_SIZE = 25;
+export const ATTEMPT_SIZE = 25;
 
 function normalizeBlueprint(raw, questions) {
   if (!raw || Array.isArray(raw) || typeof raw !== 'object') {
@@ -68,17 +68,22 @@ export function getBlueprintSufficiencyIssues({ questions, blueprint }) {
 export function buildAttempt({ questions, blueprint, seed }) {
   const rng = createSeededRng(seed);
   const selected = [];
+  let remainingSlots = ATTEMPT_SIZE;
   const normalizedBlueprint = normalizeBlueprint(blueprint, questions);
   const requestedEntries = Object.entries(normalizedBlueprint)
     .map(([category, rawCount]) => [category, Number(rawCount) || 0])
     .sort(([a], [b]) => a.localeCompare(b));
 
   for (const [category, count] of requestedEntries) {
+    if (remainingSlots <= 0) break;
+
     const pool = shuffle(
       questions.filter((q) => q.category === category),
       rng,
     );
-    selected.push(...pool.slice(0, count));
+    const takeCount = Math.max(0, Math.min(count, remainingSlots));
+    selected.push(...pool.slice(0, takeCount));
+    remainingSlots -= takeCount;
   }
 
   let finalSelection = selected;

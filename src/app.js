@@ -1,4 +1,4 @@
-import { buildAttempt, getBlueprintSufficiencyIssues, renderQuestion } from './quiz.js';
+import { ATTEMPT_SIZE, buildAttempt, getBlueprintSufficiencyIssues, renderQuestion } from './quiz.js';
 import { buildSummary, scoreAttempt } from './results.js';
 
 const APP_VERSION = '0.1.0';
@@ -90,8 +90,7 @@ async function loadData() {
     return;
   }
 
-  const totalQuestions = Object.values(blueprint).reduce((sum, count) => sum + (Number(count) || 0), 0);
-  setHomeStatusMessage(`Ready with blueprint-aligned ${totalQuestions}-question attempt.`);
+  setHomeStatusMessage(`Ready with blueprint-aligned ${ATTEMPT_SIZE}-question attempt.`);
   refs.startBtn.disabled = false;
 }
 
