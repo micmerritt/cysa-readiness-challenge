@@ -1,2 +1,6 @@
-[
-]
+{
+  "log_analysis": 7,
+  "incident_response": 6,
+  "vuln_prioritization": 6,
+  "detection_reasoning": 6
+}
