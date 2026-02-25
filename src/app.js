@@ -133,18 +133,19 @@ function renderResults() {
   });
 
   refs.missedQuestionsList.innerHTML = '';
-  const missedCategories = Object.keys(state.results.categoryTotals).filter(
-    (category) => state.results.missedByCategory[category]?.length,
-  );
+  const categoriesInOrder = Object.keys(state.results.categoryTotals);
+  const allCorrect = state.results.correct === state.results.total;
 
-  if (!missedCategories.length) {
+  if (allCorrect) {
     const item = document.createElement('li');
     item.textContent = 'Missed questions: none';
     refs.missedQuestionsList.append(item);
   } else {
-    missedCategories.forEach((category) => {
+    categoriesInOrder.forEach((category) => {
       const item = document.createElement('li');
-      const ids = state.results.missedByCategory[category].join(', ');
+      const ids = state.results.missedByCategory[category]?.length
+        ? state.results.missedByCategory[category].join(', ')
+        : 'none';
       item.textContent = `${category}: ${ids}`;
       refs.missedQuestionsList.append(item);
     });

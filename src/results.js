@@ -70,21 +70,25 @@ export function scoreAttempt({ attempt, remediation }) {
 }
 
 export function buildSummary({ seed, appVersion, results }) {
-  const categoryLines = Object.keys(results.categoryTotals).map((category) => {
-    return `- ${category}: ${results.categoryCorrect[category]}/${results.categoryTotals[category]} (${results.categoryPercents[category]}%)`;
+  const categoriesInOrder = Object.keys(results.categoryTotals);
+  const categoryLines = categoriesInOrder.map((category) => {
+    return `${category}: ${results.categoryCorrect[category]}/${results.categoryTotals[category]} (${results.categoryPercents[category]}%)`;
   });
 
   const remediationLines = results.topCategories.map(
-    (item) => `- ${item.data.title}: ${item.data.bullets[0] || 'Review this category.'}`,
+    (item) => `${item.data.title}: ${item.data.bullets[0] || 'Review this category.'}`,
   );
 
   const patternLines = results.topPatterns.map(
-    (item) => `- ${item.data.title} (${item.count}): ${item.data.meaning}`,
+    (item) => `${item.data.title} (${item.count}): ${item.data.meaning}`,
   );
 
-  const missedByCategoryLines = Object.keys(results.categoryTotals)
-    .filter((category) => results.missedByCategory[category]?.length)
-    .map((category) => `- ${category}: ${results.missedByCategory[category].join(', ')}`);
+  const missedByCategoryLines = categoriesInOrder.map((category) => {
+    const missedIds = results.missedByCategory[category];
+    return `${category}: ${missedIds?.length ? missedIds.join(', ') : 'none'}`;
+  });
+
+  const allCorrect = results.correct === results.total;
 
   return [
     `Date/Time: ${new Date().toLocaleString()}`,
@@ -95,9 +99,7 @@ export function buildSummary({ seed, appVersion, results }) {
     'Category Scores:',
     ...categoryLines,
     `Top missed IDs: ${results.topMissedIds.length ? results.topMissedIds.join(', ') : 'none'}`,
-    ...(missedByCategoryLines.length
-      ? ['Missed questions:', ...missedByCategoryLines]
-      : ['Missed questions: none']),
+    ...(allCorrect ? ['Missed questions: none'] : ['Missed questions by category:', ...missedByCategoryLines]),
     'Top Remediation:',
     ...remediationLines,
     ...(patternLines.length ? ['Missed Patterns:', ...patternLines] : []),
