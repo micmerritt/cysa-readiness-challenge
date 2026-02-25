@@ -1,5 +1,5 @@
 import { ATTEMPT_SIZE, buildAttempt, getBlueprintSufficiencyIssues, renderQuestion } from './quiz.js';
-import { buildSummary, scoreAttempt } from './results.js';
+import { buildSummary, formatMissedQuestionDetail, scoreAttempt } from './results.js';
 
 const APP_VERSION = '0.1.0';
 
@@ -143,16 +143,21 @@ function renderResults() {
   } else {
     categoriesInOrder.forEach((category) => {
       const item = document.createElement('li');
-      const ids = state.results.missedByCategory[category]?.length
-        ? state.results.missedByCategory[category].join(', ')
+      const details = state.results.missedByCategory[category]?.length
+        ? state.results.missedByCategory[category].map(formatMissedQuestionDetail).join(', ')
         : 'none';
-      item.textContent = `${category}: ${ids}`;
+      item.textContent = `${category}: ${details}`;
       refs.missedQuestionsList.append(item);
     });
   }
 
-  refs.topMissedIds.textContent = state.results.topMissedIds.length
-    ? `Top missed IDs: ${state.results.topMissedIds.join(', ')}`
+  const topMissedDetails = state.results.topMissedIds
+    .map((id) => state.results.missedDetailsById[id])
+    .filter(Boolean)
+    .map(formatMissedQuestionDetail);
+
+  refs.topMissedIds.textContent = topMissedDetails.length
+    ? `Top missed IDs: ${topMissedDetails.join(', ')}`
     : 'Top missed IDs: none';
 
   refs.remediationList.innerHTML = '';
