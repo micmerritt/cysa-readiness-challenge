@@ -74,15 +74,15 @@
       "missed_context"
     ],
     "difficulty": 2,
-    "prompt": "SIEM alert: 'Multiple authentication failures'. The raw data shows failures for 30 different usernames from one external IP against a public-facing portal over 2 minutes. What is the best description of the activity?",
+    "prompt": "A public customer portal triggers an alert for repeated authentication failures. In two minutes, one external IP attempts 30 different usernames, then succeeds on a low-privilege account that immediately requests '/profile' and '/saved-payment-methods'. What is the best next step?",
     "choices": [
-      "Credential stuffing / password spray behavior",
-      "Insider threat activity",
-      "Privilege escalation",
-      "Data exfiltration"
+      "Reset every customer password immediately and take the portal offline.",
+      "Treat as likely password-spraying success: lock the impacted account, block/challenge the source, and query logs for additional successful logins from related infrastructure.",
+      "Close as expected user behavior because only one account succeeded.",
+      "Focus only on malware scanning of the web server before reviewing authentication telemetry."
     ],
-    "answerIndex": 0,
-    "rationale": "Many usernames from one source over a short window is consistent with password spraying or credential stuffing attempts."
+    "answerIndex": 1,
+    "rationale": "The pattern indicates credential abuse with probable account compromise. Best next step is targeted containment and rapid scoping (account action + source control + related-login hunt) instead of disruptive global resets or unrelated host-focused actions."
   },
   {
     "id": "cysa-log-006",
@@ -91,15 +91,15 @@
       "missed_context"
     ],
     "difficulty": 3,
-    "prompt": "You see a single host generating thousands of outbound DNS queries with NXDOMAIN responses. What is the most likely explanation to investigate first?",
+    "prompt": "Over 30 minutes, one workstation sends 8,000 DNS queries. Most are for randomly generated subdomains under a single external domain, nearly all returning NXDOMAIN, at a fixed 60-second interval. What is the best next step for analysis?",
     "choices": [
-      "Normal browsing behavior",
-      "Domain generation algorithm or misconfigured software repeatedly querying non-existent domains",
-      "Confirmed data exfiltration via DNS tunneling",
-      "A SIEM parsing error"
+      "Assume user browsing caused typos and suppress the alert.",
+      "Form and test a DGA-beaconing hypothesis by correlating endpoint process telemetry with DNS query timestamps and isolating the host if command-and-control behavior is confirmed.",
+      "Declare confirmed DNS tunneling and immediately block all outbound DNS enterprise-wide.",
+      "Reimage the endpoint first, then review logs later if needed."
     ],
     "answerIndex": 1,
-    "rationale": "NXDOMAIN bursts often indicate DGA-like behavior or broken software. DNS tunneling is possible but needs corroboration such as long TXT queries or unusual payload patterns."
+    "rationale": "The periodic high-entropy query pattern is suspicious but not yet proof of compromise. CySA+ reasoning emphasizes hypothesis testing with corroborating endpoint telemetry before escalating to broad disruptive actions."
   },
   {
     "id": "cysa-log-007",
@@ -176,15 +176,15 @@
       "sequence_error"
     ],
     "difficulty": 2,
-    "prompt": "You suspect an endpoint is infected and actively beaconing. What is the best first action in most enterprise IR workflows?",
+    "prompt": "A finance endpoint shows likely malware beaconing to a known C2 domain, and no other systems are confirmed impacted yet. The host is still online and users are active. What is the best immediate action?",
     "choices": [
-      "Immediately delete suspicious files to remove the malware",
-      "Collect volatile evidence and key telemetry, then contain (isolate) the host to prevent spread",
-      "Notify the media team",
-      "Reinstall the operating system immediately"
+      "Delete suspicious files right away to remove evidence of infection.",
+      "Capture volatile telemetry needed for triage (active connections/process context), then isolate the host through EDR/network controls.",
+      "Wait for end users to report more symptoms before taking containment action.",
+      "Shut down the entire finance VLAN to guarantee containment."
     ],
     "answerIndex": 1,
-    "rationale": "Evidence collection and safe containment typically come before destructive steps, especially when you may need to understand scope and root cause."
+    "rationale": "For a likely active compromise, responders should quickly preserve high-value volatile context and then contain the host to stop ongoing attacker actions. This balances evidence preservation with risk reduction."
   },
   {
     "id": "cysa-ir-002",
@@ -193,15 +193,15 @@
       "sequence_error"
     ],
     "difficulty": 3,
-    "prompt": "A server shows signs of compromise. You are asked to 'pull the plug' immediately. What is the strongest reason to avoid abrupt power-off as the first action?",
+    "prompt": "An application server is suspected compromised and management asks to power it off immediately. The SOC has EDR access and can network-isolate the host remotely. What is the best response?",
     "choices": [
-      "It is always against policy",
-      "It can destroy volatile evidence needed to confirm activity and identify attacker tooling",
-      "It automatically triggers ransomware",
-      "It prevents you from notifying management"
+      "Power it off now because any delay increases legal exposure.",
+      "Isolate it from the network and collect volatile evidence first, because abrupt shutdown can destroy memory-resident artifacts needed for scoping and attribution.",
+      "Leave it fully online to avoid impacting production while you gather more alerts.",
+      "Uninstall EDR first so attacker tooling is not alerted."
     ],
     "answerIndex": 1,
-    "rationale": "Powering off can erase memory-resident artifacts and disrupt evidence collection. Containment can often be achieved while preserving evidence."
+    "rationale": "When containment alternatives exist, network isolation plus rapid volatile collection is superior to immediate power-off. This preserves critical evidence while reducing attacker freedom of movement."
   },
   {
     "id": "cysa-ir-003",
@@ -295,15 +295,15 @@
       "evidence_gap"
     ],
     "difficulty": 2,
-    "prompt": "You have confirmed malicious activity on a host. Which set of artifacts is most useful to collect early?",
+    "prompt": "You confirmed malicious execution on a workstation and need to support both containment decisions and later root-cause analysis. Which evidence collection plan is best to perform early?",
     "choices": [
-      "Only screenshots of alerts",
-      "Process tree, command lines, network connections, relevant logs, and file hashes",
-      "Printer history and browser bookmarks",
-      "A list of installed fonts"
+      "Capture only SIEM screenshots so leadership has visuals for reporting.",
+      "Collect process tree/command lines, active network connections, persistence artifacts, relevant host and auth logs, and hashes of suspicious binaries/scripts.",
+      "Export browser favorites and installed font lists for user attribution.",
+      "Skip collection and proceed directly to reimage to restore service faster."
     ],
     "answerIndex": 1,
-    "rationale": "Early collection should focus on high-signal telemetry that supports scoping, root cause, and persistence identification."
+    "rationale": "Early collection should prioritize artifacts that establish execution, communications, and persistence, enabling both near-term scoping and longer-term lessons learned. Screenshots or cosmetic host data are insufficient."
   },
   {
     "id": "cysa-ir-009",
@@ -346,15 +346,15 @@
       "wrong_priority"
     ],
     "difficulty": 2,
-    "prompt": "You have 100 critical CVSS findings. Which factor most often changes the real-world priority the most?",
+    "prompt": "Your scanner reports 100 critical findings, but only 12 can be remediated this week. Which triage approach is most defensible for selecting the first remediation batch?",
     "choices": [
-      "The font used in the scanner report",
-      "Asset criticality and exposure (internet-facing, privileged, sensitive data)",
-      "The number of findings total",
-      "Whether the finding name sounds scary"
+      "Patch findings in alphabetical order to keep prioritization objective.",
+      "Prioritize vulnerabilities on internet-exposed or high-value assets where exploitability evidence exists, then schedule lower-exposure issues.",
+      "Patch only systems owned by teams that respond fastest to tickets.",
+      "Choose findings with the longest scanner descriptions because they are likely most severe."
     ],
     "answerIndex": 1,
-    "rationale": "Prioritization depends heavily on asset importance and exposure, not the raw count or naming."
+    "rationale": "Best-practice vulnerability prioritization is risk-based: combine business impact, exposure, and exploitability evidence rather than scanner severity alone or administrative convenience."
   },
   {
     "id": "cysa-vuln-002",
@@ -414,15 +414,15 @@
       "missed_context"
     ],
     "difficulty": 2,
-    "prompt": "Which data point best supports prioritizing a vulnerability as urgent?",
+    "prompt": "Two vulnerabilities have similar CVSS scores on comparable assets. Which additional evidence most strongly justifies escalating one as urgent this week?",
     "choices": [
-      "A long description in the scanner output",
-      "Evidence of exploitation attempts in logs or threat intel indicating active exploitation",
-      "A high CVSS score alone",
-      "The vulnerability has a memorable name"
+      "It has more references in the scanner plugin output.",
+      "Internal telemetry or trusted intelligence shows active exploitation attempts aligned to that CVE in your sector or environment.",
+      "Its CVE identifier is newer.",
+      "A vendor blog describes the vulnerability with severe language."
     ],
     "answerIndex": 1,
-    "rationale": "Evidence of active exploitation or exploitation attempts is a strong driver for urgency."
+    "rationale": "When baseline severity is similar, active exploitation evidence is a key differentiator that should pull remediation forward. Naming, recency, or verbosity are weak prioritization signals."
   },
   {
     "id": "cysa-vuln-006",
@@ -448,15 +448,15 @@
       "wrong_priority"
     ],
     "difficulty": 2,
-    "prompt": "Which combination most increases risk for a vulnerability?",
+    "prompt": "You must pick one emergency fix before a freeze window. Which scenario is the best candidate for immediate remediation?",
     "choices": [
-      "High CVSS, internal-only, no exploit available",
-      "Medium CVSS, internet-facing, known exploit, critical business system",
-      "Low CVSS, isolated lab system, no sensitive data",
-      "Any vulnerability on any system equally"
+      "CVSS 9.8 on an isolated lab host with no business data and no known exploit path.",
+      "CVSS 6.5 on an internet-facing authentication server with known exploit code and broad user impact if compromised.",
+      "CVSS 7.0 on a segmented internal print server with compensating controls and no threat activity.",
+      "CVSS 5.0 on a retired asset that is powered off but still listed in CMDB."
     ],
     "answerIndex": 1,
-    "rationale": "Exposure, exploit availability, and asset criticality are key multipliers beyond severity scoring."
+    "rationale": "Exposure, exploit availability, and business impact can outweigh raw CVSS. A moderately scored but externally reachable auth system with known exploits is often highest operational risk."
   },
   {
     "id": "cysa-vuln-008",
@@ -516,15 +516,15 @@
       "assumption_jump"
     ],
     "difficulty": 2,
-    "prompt": "An EDR alert says 'Suspicious PowerShell'. What is the best first question to answer before choosing a response action?",
+    "prompt": "An EDR analytic flags 'Suspicious PowerShell' on a help-desk workstation. Before deciding whether to isolate the host, what is the best first analytic question?",
     "choices": [
-      "How many computers does the company own",
-      "What was the parent process and command line, and did it download or execute payloads",
-      "What is the employee\u2019s job title",
-      "What day of the week it is"
+      "How old is the workstation model compared with other help-desk devices?",
+      "What process launched PowerShell, what command/script executed, and whether follow-on network or child-process behavior matches malicious tradecraft.",
+      "Whether the user recently completed annual awareness training.",
+      "How many total PowerShell alerts fired last quarter across the company."
     ],
     "answerIndex": 1,
-    "rationale": "Parent process and command line provide the highest signal to distinguish benign admin activity from malicious execution."
+    "rationale": "Immediate decision quality depends on execution context and behavior chain (parent, command content, and downstream activity). Asset demographics or training status do not validate maliciousness."
   },
   {
     "id": "cysa-det-002",
@@ -567,15 +567,15 @@
       "tool_output_misread"
     ],
     "difficulty": 3,
-    "prompt": "IDS alert: 'Possible DNS tunneling'. Which indicator most strongly supports actual tunneling rather than normal DNS behavior?",
+    "prompt": "A DNS tunneling rule fired for one engineering endpoint. Which validation step best distinguishes likely tunneling from noisy but benign DNS activity?",
     "choices": [
-      "High volume of A record queries for common domains",
-      "Long, high-entropy subdomains with frequent TXT queries and consistent timing",
-      "NXDOMAIN responses for typos",
-      "One query to a new domain"
+      "Count total A-record lookups to popular SaaS domains for that user.",
+      "Examine query characteristics for long high-entropy subdomains, unusual TXT/NULL usage, beacon-like timing, and correlate to an originating process on the endpoint.",
+      "Check whether the endpoint changed wallpaper this week.",
+      "Close the alert if antivirus has no signature hit."
     ],
     "answerIndex": 1,
-    "rationale": "Tunneling often uses long encoded labels and TXT records with consistent beaconing. Normal DNS rarely looks like that at scale."
+    "rationale": "Tunneling validation should combine suspicious DNS features with host context. Single-signal checks (like AV status or generic query volume) are insufficient to confirm or dismiss the activity."
   },
   {
     "id": "cysa-det-005",
