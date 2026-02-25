@@ -1,5 +1,5 @@
 function normalizeBlueprint(raw, questions) {
-  if (!raw || Array.isArray(raw)) {
+  if (!raw || Array.isArray(raw) || typeof raw !== 'object') {
     const fallback = {};
     for (const q of questions) {
       fallback[q.category] = (fallback[q.category] || 0) + 1;
@@ -32,17 +32,51 @@ function shuffle(items, random) {
   return list;
 }
 
+export function getBlueprintSufficiencyIssues({ questions, blueprint }) {
+  const issues = [];
+  const normalizedBlueprint = normalizeBlueprint(blueprint, questions);
+  const categoryTotals = {};
+
+  for (const question of questions) {
+    categoryTotals[question.category] = (categoryTotals[question.category] || 0) + 1;
+  }
+
+  const requestedEntries = Object.entries(normalizedBlueprint)
+    .map(([category, rawCount]) => [category, Number(rawCount) || 0])
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  for (const [category, requestedCount] of requestedEntries) {
+    const available = categoryTotals[category] || 0;
+
+    if (requestedCount <= 0) {
+      issues.push(`Blueprint category "${category}" must request at least 1 question (currently ${requestedCount}).`);
+      continue;
+    }
+
+    if (available < requestedCount) {
+      issues.push(
+        `Blueprint requires ${requestedCount} "${category}" questions but only ${available} are available.`,
+      );
+    }
+  }
+
+  return issues;
+}
+
 export function buildAttempt({ questions, blueprint, seed }) {
   const rng = createSeededRng(seed);
   const selected = [];
   const normalizedBlueprint = normalizeBlueprint(blueprint, questions);
+  const requestedEntries = Object.entries(normalizedBlueprint)
+    .map(([category, rawCount]) => [category, Number(rawCount) || 0])
+    .sort(([a], [b]) => a.localeCompare(b));
 
-  for (const [category, count] of Object.entries(normalizedBlueprint)) {
+  for (const [category, count] of requestedEntries) {
     const pool = shuffle(
       questions.filter((q) => q.category === category),
       rng,
     );
-    selected.push(...pool.slice(0, Number(count) || 0));
+    selected.push(...pool.slice(0, count));
   }
 
   const ordered = shuffle(selected, rng).map((question) => {

@@ -1,4 +1,4 @@
-import { buildAttempt, renderQuestion } from './quiz.js';
+import { buildAttempt, getBlueprintSufficiencyIssues, renderQuestion } from './quiz.js';
 import { buildSummary, scoreAttempt } from './results.js';
 
 const APP_VERSION = '0.1.0';
@@ -15,6 +15,7 @@ const refs = {
   question: document.getElementById('quiz-question'),
   form: document.getElementById('quiz-form'),
   nextBtn: document.getElementById('next-btn'),
+  resultSeed: document.getElementById('result-seed'),
   tier: document.getElementById('tier'),
   overall: document.getElementById('overall'),
   categoryBreakdown: document.getElementById('category-breakdown'),
@@ -48,6 +49,23 @@ function generateSeed() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function setHomeStatusMessage(messages) {
+  refs.homeStatus.innerHTML = '';
+
+  if (Array.isArray(messages)) {
+    const list = document.createElement('ul');
+    messages.forEach((message) => {
+      const item = document.createElement('li');
+      item.textContent = message;
+      list.append(item);
+    });
+    refs.homeStatus.append(list);
+    return;
+  }
+
+  refs.homeStatus.textContent = messages;
+}
+
 async function loadData() {
   const [blueprint, questions, remediation] = await Promise.all([
     fetch('./data/blueprint.json').then((r) => r.json()),
@@ -57,12 +75,23 @@ async function loadData() {
   state.data = { blueprint, questions, remediation };
 
   if (!Array.isArray(questions) || questions.length === 0) {
-    refs.homeStatus.textContent = 'No questions are available yet. Please check back soon.';
+    setHomeStatusMessage('No questions are available yet. Please check back soon.');
     refs.startBtn.disabled = true;
     return;
   }
 
-  refs.homeStatus.textContent = `Ready with ${questions.length} questions.`;
+  const sufficiencyIssues = getBlueprintSufficiencyIssues({ questions, blueprint });
+  if (sufficiencyIssues.length) {
+    setHomeStatusMessage([
+      'Challenge cannot start because the blueprint cannot be satisfied:',
+      ...sufficiencyIssues,
+    ]);
+    refs.startBtn.disabled = true;
+    return;
+  }
+
+  const totalQuestions = Object.values(blueprint).reduce((sum, count) => sum + (Number(count) || 0), 0);
+  setHomeStatusMessage(`Ready with blueprint-aligned ${totalQuestions}-question attempt.`);
   refs.startBtn.disabled = false;
 }
 
@@ -91,6 +120,7 @@ function storeCurrentAnswer() {
 }
 
 function renderResults() {
+  refs.resultSeed.textContent = `Seed: ${state.seed}`;
   refs.tier.textContent = `Tier: ${state.results.tier}`;
   refs.overall.textContent = `Score: ${state.results.correct}/${state.results.total} (${state.results.overallPercent}%)`;
 
@@ -154,6 +184,6 @@ refs.restartBtn.addEventListener('click', () => {
 });
 
 loadData().catch(() => {
-  refs.homeStatus.textContent = 'Unable to load challenge data. Please refresh later.';
+  setHomeStatusMessage('Unable to load challenge data. Please refresh later.');
   refs.startBtn.disabled = true;
 });
