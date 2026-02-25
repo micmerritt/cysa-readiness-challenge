@@ -1,3 +1,5 @@
+const ATTEMPT_SIZE = 25;
+
 function normalizeBlueprint(raw, questions) {
   if (!raw || Array.isArray(raw) || typeof raw !== 'object') {
     const fallback = {};
@@ -79,7 +81,24 @@ export function buildAttempt({ questions, blueprint, seed }) {
     selected.push(...pool.slice(0, count));
   }
 
-  const ordered = shuffle(selected, rng).map((question) => {
+  let finalSelection = selected;
+
+  if (selected.length > ATTEMPT_SIZE) {
+    finalSelection = shuffle(selected, rng).slice(0, ATTEMPT_SIZE);
+  } else if (selected.length < ATTEMPT_SIZE) {
+    const selectedIds = new Set(selected.map((question) => question.id));
+    const remainingPool = shuffle(
+      questions.filter((question) => !selectedIds.has(question.id)),
+      rng,
+    );
+
+    finalSelection = [
+      ...selected,
+      ...remainingPool.slice(0, ATTEMPT_SIZE - selected.length),
+    ];
+  }
+
+  const ordered = shuffle(finalSelection, rng).map((question) => {
     const choicePairs = question.choices.map((choice, index) => ({ choice, index }));
     const shuffledChoices = shuffle(choicePairs, rng);
 
