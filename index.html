@@ -1,1 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CySA+ Readiness Challenge</title>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <main class="app" id="app" aria-live="polite">
+      <section id="home-view" class="view">
+        <h1>CySA+ Readiness Challenge</h1>
+        <p class="lead">Short scenario-based diagnostic for CySA+ reasoning readiness.</p>
+        <p id="home-status" class="status"></p>
+        <button id="start-btn" type="button">Start Challenge</button>
+      </section>
 
+      <section id="quiz-view" class="view hidden" aria-labelledby="quiz-progress">
+        <p id="quiz-progress" class="status" aria-live="polite"></p>
+        <h2 id="quiz-question"></h2>
+        <form id="quiz-form" class="choices" aria-label="Answer choices"></form>
+        <div class="actions">
+          <button id="next-btn" type="button">Next</button>
+        </div>
+      </section>
+
+      <section id="results-view" class="view hidden" aria-labelledby="results-title">
+        <h2 id="results-title">Results</h2>
+        <p id="tier" class="status"></p>
+        <p id="overall"></p>
+        <ul id="category-breakdown"></ul>
+        <h3>Top remediation</h3>
+        <ul id="remediation-list"></ul>
+        <h3>Missed patterns</h3>
+        <ul id="pattern-list"></ul>
+        <p class="disclaimer">This is a readiness diagnostic, not a guarantee of passing.</p>
+        <div class="actions">
+          <button id="copy-summary-btn" type="button">Copy Results Summary</button>
+          <button id="restart-btn" type="button">Start New Attempt</button>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
