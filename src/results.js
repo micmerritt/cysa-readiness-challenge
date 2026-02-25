@@ -9,6 +9,8 @@ export function scoreAttempt({ attempt, remediation }) {
   const categoryTotals = {};
   const categoryCorrect = {};
   const missedTags = {};
+  const missedByCategory = {};
+  const missedIdsInAttemptOrder = [];
   let correct = 0;
 
   for (const question of attempt.questions) {
@@ -21,6 +23,10 @@ export function scoreAttempt({ attempt, remediation }) {
       categoryCorrect[question.category] += 1;
       continue;
     }
+
+    missedByCategory[question.category] = missedByCategory[question.category] || [];
+    missedByCategory[question.category].push(question.id);
+    missedIdsInAttemptOrder.push(question.id);
 
     for (const tag of question.tags || []) {
       missedTags[tag] = (missedTags[tag] || 0) + 1;
@@ -56,6 +62,8 @@ export function scoreAttempt({ attempt, remediation }) {
     categoryTotals,
     categoryCorrect,
     categoryPercents,
+    missedByCategory,
+    topMissedIds: missedIdsInAttemptOrder.slice(0, 5),
     topCategories,
     topPatterns,
   };
@@ -74,6 +82,10 @@ export function buildSummary({ seed, appVersion, results }) {
     (item) => `- ${item.data.title} (${item.count}): ${item.data.meaning}`,
   );
 
+  const missedByCategoryLines = Object.keys(results.categoryTotals)
+    .filter((category) => results.missedByCategory[category]?.length)
+    .map((category) => `- ${category}: ${results.missedByCategory[category].join(', ')}`);
+
   return [
     `Date/Time: ${new Date().toLocaleString()}`,
     `App Version: ${appVersion}`,
@@ -82,6 +94,10 @@ export function buildSummary({ seed, appVersion, results }) {
     `Overall: ${results.correct}/${results.total} (${results.overallPercent}%)`,
     'Category Scores:',
     ...categoryLines,
+    `Top missed IDs: ${results.topMissedIds.length ? results.topMissedIds.join(', ') : 'none'}`,
+    ...(missedByCategoryLines.length
+      ? ['Missed questions:', ...missedByCategoryLines]
+      : ['Missed questions: none']),
     'Top Remediation:',
     ...remediationLines,
     ...(patternLines.length ? ['Missed Patterns:', ...patternLines] : []),

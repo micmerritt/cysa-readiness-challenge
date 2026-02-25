@@ -19,6 +19,8 @@ const refs = {
   tier: document.getElementById('tier'),
   overall: document.getElementById('overall'),
   categoryBreakdown: document.getElementById('category-breakdown'),
+  missedQuestionsList: document.getElementById('missed-questions-list'),
+  topMissedIds: document.getElementById('top-missed-ids'),
   remediationList: document.getElementById('remediation-list'),
   patternList: document.getElementById('pattern-list'),
   copySummaryBtn: document.getElementById('copy-summary-btn'),
@@ -129,6 +131,28 @@ function renderResults() {
     item.textContent = `${category}: ${state.results.categoryCorrect[category]}/${state.results.categoryTotals[category]} (${state.results.categoryPercents[category]}%)`;
     refs.categoryBreakdown.append(item);
   });
+
+  refs.missedQuestionsList.innerHTML = '';
+  const missedCategories = Object.keys(state.results.categoryTotals).filter(
+    (category) => state.results.missedByCategory[category]?.length,
+  );
+
+  if (!missedCategories.length) {
+    const item = document.createElement('li');
+    item.textContent = 'Missed questions: none';
+    refs.missedQuestionsList.append(item);
+  } else {
+    missedCategories.forEach((category) => {
+      const item = document.createElement('li');
+      const ids = state.results.missedByCategory[category].join(', ');
+      item.textContent = `${category}: ${ids}`;
+      refs.missedQuestionsList.append(item);
+    });
+  }
+
+  refs.topMissedIds.textContent = state.results.topMissedIds.length
+    ? `Top missed IDs: ${state.results.topMissedIds.join(', ')}`
+    : 'Top missed IDs: none';
 
   refs.remediationList.innerHTML = '';
   state.results.topCategories.forEach((entry) => {
