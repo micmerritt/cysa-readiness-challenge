@@ -10,6 +10,7 @@ export function scoreAttempt({ attempt, remediation }) {
   const categoryCorrect = {};
   const missedTags = {};
   const missedByCategory = {};
+  const missedDetailsById = {};
   const missedIdsInAttemptOrder = [];
   let correct = 0;
 
@@ -24,8 +25,15 @@ export function scoreAttempt({ attempt, remediation }) {
       continue;
     }
 
+    const detail = {
+      id: question.id,
+      choseIndex: selected,
+      correctIndex: question.answerIndex,
+    };
+
     missedByCategory[question.category] = missedByCategory[question.category] || [];
-    missedByCategory[question.category].push(question.id);
+    missedByCategory[question.category].push(detail);
+    missedDetailsById[question.id] = detail;
     missedIdsInAttemptOrder.push(question.id);
 
     for (const tag of question.tags || []) {
@@ -63,10 +71,15 @@ export function scoreAttempt({ attempt, remediation }) {
     categoryCorrect,
     categoryPercents,
     missedByCategory,
+    missedDetailsById,
     topMissedIds: missedIdsInAttemptOrder.slice(0, 5),
     topCategories,
     topPatterns,
   };
+}
+
+export function formatMissedQuestionDetail(detail) {
+  return `${detail.id} (chose ${detail.choseIndex}, correct ${detail.correctIndex})`;
 }
 
 export function buildSummary({ seed, appVersion, results }) {
@@ -84,9 +97,14 @@ export function buildSummary({ seed, appVersion, results }) {
   );
 
   const missedByCategoryLines = categoriesInOrder.map((category) => {
-    const missedIds = results.missedByCategory[category];
-    return `${category}: ${missedIds?.length ? missedIds.join(', ') : 'none'}`;
+    const missedDetails = results.missedByCategory[category];
+    return `${category}: ${missedDetails?.length ? missedDetails.map(formatMissedQuestionDetail).join(', ') : 'none'}`;
   });
+
+  const topMissedDetails = results.topMissedIds
+    .map((id) => results.missedDetailsById[id])
+    .filter(Boolean)
+    .map(formatMissedQuestionDetail);
 
   const allCorrect = results.correct === results.total;
 
@@ -98,7 +116,7 @@ export function buildSummary({ seed, appVersion, results }) {
     `Overall: ${results.correct}/${results.total} (${results.overallPercent}%)`,
     'Category Scores:',
     ...categoryLines,
-    `Top missed IDs: ${results.topMissedIds.length ? results.topMissedIds.join(', ') : 'none'}`,
+    `Top missed IDs: ${topMissedDetails.length ? topMissedDetails.join(', ') : 'none'}`,
     ...(allCorrect ? ['Missed questions: none'] : ['Missed questions by category:', ...missedByCategoryLines]),
     'Top Remediation:',
     ...remediationLines,
